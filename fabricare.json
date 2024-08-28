@@ -1,0 +1,17 @@
+{
+	"solution": {
+		"name" : "vendor-python",
+		"type" : "xyo-cpp",
+		"projects": [
+			{
+				"name" : "python",
+				"SPDX-License-Identifier": "PSF-2.0",
+				"sourceLink" : "https://github.com/python/cpython",
+				"buildLink" : "https://github.com/bjia56/portable-python-cmake-buildsystem",
+				"version" : "3.9.19",				
+				"noVersion" : true
+			}
+		],
+		"releaseName" : "python"
+	}
+}
