@@ -13,7 +13,6 @@ if (!Script.isNil(Solution.noInstall)) {
 
 messageAction("install");
 
-exitIf(!Shell.copyDirRecursively("output/bin", pathRepository + "/bin"));
-exitIf(!Shell.copyDirRecursively("output/include", pathRepository + "/include"));
-exitIf(!Shell.copyDirRecursively("output/lib", pathRepository + "/lib"));
-exitIf(!Shell.copyDirRecursively("output/opt", pathRepository + "/opt"));
+Shell.removeDirRecursivelyForce(pathRepository + "/opt/python");
+exitIf(!Shell.copyDirRecursively("output", pathRepository + "/opt/python"));
+
