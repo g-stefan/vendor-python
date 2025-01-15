@@ -31,6 +31,7 @@ if (!Shell.fileExists("temp/build.config.flag")) {
 
 	if (Fabricare.isStatic()) {
 		Shell.copyFile("fabricare/source/exports.h","source/Include/exports.h");
+		Shell.copyFile("fabricare/source/sysmodule.c","source/Python/sysmodule.c");
 	};
 
 	cmdConfig = "cmake";
@@ -58,6 +59,7 @@ if (!Shell.fileExists("temp/build.config.flag")) {
 		cmdConfig += " -DCMAKE_CXX_FLAGS_RELEASE=\"/MT /O2 /Ob2 /DNDEBUG\"";
 		cmdConfig += " -DCMAKE_C_FLAGS_RELEASE=\"/MT /O2 /Ob2 /DNDEBUG\"";
 		cmdConfig += " -DCMAKE_EXE_LINKER_FLAGS_INIT=\" crypt32.lib \"";
+		cmdConfig += " -DPy_NO_ENABLE_SHARED=ON";
 
 	};
 
@@ -139,7 +141,7 @@ runInPath("temp/cmake", function () {
 	exitIf(Shell.system("ninja clean"));
 });
 
-Shell.copyFile("temp/output/libs/python39.lib","temp/output/libs/python.lib");
+Shell.copyFile("temp/output/libs/python312.lib","temp/output/libs/python.lib");
 exitIf(!Shell.copyDirRecursively("temp/output/bin", "output/bin"));
 exitIf(!Shell.copyDirRecursively("temp/output/include", "output/include/python"));
 exitIf(!Shell.copyDirRecursively("temp/output/libs", "output/lib"));
