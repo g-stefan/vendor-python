@@ -8,7 +8,8 @@
 				"SPDX-License-Identifier": "PSF-2.0",
 				"sourceLink" : "https://github.com/python/cpython",
 				"buildLink" : "https://github.com/bjia56/portable-python-cmake-buildsystem",
-				"version" : "3.12.8",				
+				"version" : "3.12.8",
+				"shortVersion" : "312",
 				"noVersion" : true
 			}
 		],

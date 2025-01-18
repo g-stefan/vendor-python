@@ -141,11 +141,52 @@ runInPath("temp/cmake", function () {
 	exitIf(Shell.system("ninja clean"));
 });
 
+function recursivelyFindDirectory(path,_what){
+	var retV=[];
+	var pathFind=new ShellFind();
+	Console.writeLn(path+"/*");
+	for(pathFind.find(path+"/*");pathFind.isValid();pathFind.next()){
+		if(pathFind.isDirectory()) {
+			if(pathFind.name()=="."){
+				continue;
+			};
+			if(pathFind.name()==".."){
+				continue;
+			};
+			if(pathFind.name()==_what){
+				retV[retV.length] = path + "/" + _what;
+				continue;
+			};
+			retV=retV.concat(recursivelyFindDirectory(path+"/"+pathFind.name(),_what));
+		};
+	};
+	return retV;
+};
+
+function recursivelyRemoveDirectory(path,_what){
+	var list=recursivelyFindDirectory(path,_what);	
+	for(var index in list) {
+		Shell.removeDirRecursivelyForce(list[index]);
+	};
+};
+
+exitIf(!Shell.copyDirRecursively("temp/output/Lib", "temp/output/bin/Lib"));
+runInPath("temp/output/bin", function () {
+	Shell.system("python -m compileall -f -b -o 2 -r 8 \"../Lib\"");
+});
+Shell.removeDirRecursivelyForce("temp/output/bin/Lib");
+Shell.removeFileRecursively("temp/output/Lib","*.py");
+recursivelyRemoveDirectory("temp/output/Lib","__pycache__");
+Shell.removeDirRecursivelyForce("temp/output/Lib/config");
+
+runInPath("temp/output/Lib", function () {
+	exitIf(Shell.system("7z a -mx9 -mmt4 -r- -sse -w. -y -tzip ../bin/" + "python" + Project.shortVersion + ".zip " + "*"));
+});
+
 Shell.copyFile("temp/output/libs/python312.lib","temp/output/libs/python.lib");
 exitIf(!Shell.copyDirRecursively("temp/output/bin", "output/bin"));
 exitIf(!Shell.copyDirRecursively("temp/output/include", "output/include/python"));
 exitIf(!Shell.copyDirRecursively("temp/output/libs", "output/lib"));
-exitIf(!Shell.copyDirRecursively("temp/output/lib", "output/opt/python"));
 
 Shell.filePutContents("temp/build.done.flag", "done");
 
