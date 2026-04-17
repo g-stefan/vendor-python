@@ -1,6 +1,6 @@
 // Created by Grigore Stefan <g_stefan@yahoo.com>
 // Public domain (Unlicense) <http://unlicense.org>
-// SPDX-FileCopyrightText: 2022-2025 Grigore Stefan <g_stefan@yahoo.com>
+// SPDX-FileCopyrightText: 2022-2026 Grigore Stefan <g_stefan@yahoo.com>
 // SPDX-License-Identifier: Unlicense
 
 Fabricare.include("vendor");
@@ -24,10 +24,33 @@ Shell.mkdirRecursivelyIfNotExists("temp");
 
 Shell.mkdirRecursivelyIfNotExists("temp/cmake");
 
+// required
+Shell.mkdirRecursivelyIfNotExists("vendor");
+// ---
+var vendor = "tcltk-9.0.2-win64-msvc-2022-dev.7z";
+if (Fabricare.isStatic()) {
+	var vendor = "tcltk-9.0.2-win64-msvc-2022.static-dev.7z";
+};
+if (!Shell.fileExists("vendor/" + vendor)) {
+	if (Shell.fileExists(pathRelease + "/" + vendor)) {
+		Shell.copyFile(pathRelease + "/" + vendor, "vendor/" + vendor);
+	} else if (Shell.fileExists("../vendor-tcltk/release/" + vendor)) {
+		Shell.copyFile("../vendor-tcltk/release/" + vendor, "vendor/" + vendor);
+	} else {
+		var webLink = "https://github.com/g-stefan/vendor-tcltk/releases/download/v9.0.2/" + vendor;
+		exitIf(Shell.system("curl --insecure --location " + webLink + " --output vendor/" + vendor));
+	};
+};
+if (!Shell.directoryExists("temp/tcltk")) {
+	exitIf(Shell.system("7z x -aoa -otemp/tcltk/ vendor/" + vendor));
+};
+// ---
+
 if (!Shell.fileExists("temp/build.config.flag")) {
 	Shell.setenv("CC", "cl.exe");
 	Shell.setenv("CXX", "cl.exe");
 	Shell.setenv("ASM_MASM", "ml64.exe");
+
 
 	if (Fabricare.isStatic()) {
 		Shell.copyFile("fabricare/source/exports.h","source/Include/exports.h");
@@ -47,7 +70,6 @@ if (!Shell.fileExists("temp/build.config.flag")) {
 		cmdConfig += " -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded";
 		cmdConfig += " -DCMAKE_CXX_FLAGS_RELEASE=\"/MD /O2 /Ob2 /DNDEBUG\"";
 		cmdConfig += " -DCMAKE_C_FLAGS_RELEASE=\"/MD /O2 /Ob2 /DNDEBUG\"";
-
 	};
 
 	if (Fabricare.isStatic()) {
@@ -58,10 +80,20 @@ if (!Shell.fileExists("temp/build.config.flag")) {
 		cmdConfig += " -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded";
 		cmdConfig += " -DCMAKE_CXX_FLAGS_RELEASE=\"/MT /O2 /Ob2 /DNDEBUG\"";
 		cmdConfig += " -DCMAKE_C_FLAGS_RELEASE=\"/MT /O2 /Ob2 /DNDEBUG\"";
-		cmdConfig += " -DCMAKE_EXE_LINKER_FLAGS_INIT=\" crypt32.lib \"";
 		cmdConfig += " -DPy_NO_ENABLE_SHARED=ON";
 
+		cmdConfig += " -DUSE_SYSTEM_TCL=ON";
+		cmdConfig += " -DTCL_LIBRARY=..\\tcltk\\lib\\tcl90.lib";
+		cmdConfig += " -DTK_LIBRARY=..\\tcltk\\lib\\tcl9tk90.lib";
+		cmdConfig += " -DTCL_INCLUDE_PATH=..\\tcltk\\include\\tcl";
+		cmdConfig += " -DTK_INCLUDE_PATH=..\\tcltk\\include\\tk";
+
+		cmdConfig += " -DCMAKE_EXE_LINKER_FLAGS_INIT=\" crypt32.lib netapi32.lib gdi32.lib user32.lib userenv.lib winspool.lib shell32.lib ole32.lib uuid.lib tclstub.lib\"";
+
 	};
+
+
+
 
 	cmdConfig += " -DPYTHON_VERSION=" + Project.version;
 	cmdConfig += " -DCMAKE_BUILD_TYPE=Release";
@@ -121,6 +153,7 @@ if (!Shell.fileExists("temp/build.config.flag")) {
 	cmdConfig += " -DBUILTIN_TIME=ON";
 	cmdConfig += " -DBUILTIN_UNICODEDATA=ON";
 	cmdConfig += " -DBUILTIN_ZLIB=ON";
+	cmdConfig += " -DBUILTIN_TKINTER=ON";
 
 	cmdConfig += " -DWITH_STATIC_DEPENDENCIES=ON";
 	cmdConfig += " -DBUILD_WININST=OFF";
@@ -187,6 +220,7 @@ Shell.copyFile("temp/output/libs/python312.lib","temp/output/libs/python.lib");
 exitIf(!Shell.copyDirRecursively("temp/output/bin", "output/bin"));
 exitIf(!Shell.copyDirRecursively("temp/output/include", "output/include/python"));
 exitIf(!Shell.copyDirRecursively("temp/output/libs", "output/lib"));
+Shell.copyFile("temp/tcltk/bin/wish.zip","output/bin/tcltk9.zip");
 
 Shell.filePutContents("temp/build.done.flag", "done");
 
