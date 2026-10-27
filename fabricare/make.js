@@ -38,7 +38,7 @@ if (!Shell.fileExists("vendor/" + vendor)) {
 		Shell.copyFile("../vendor-tcltk/release/" + vendor, "vendor/" + vendor);
 	} else {
 		var webLink = "https://github.com/g-stefan/vendor-tcltk/releases/download/v9.0.2/" + vendor;
-		exitIf(Shell.system("curl --insecure --location " + webLink + " --output vendor/" + vendor));
+		exitIf(Shell.system("curl --ca-native --location " + webLink + " --output vendor/" + vendor));
 	};
 };
 if (!Shell.directoryExists("temp/tcltk")) {

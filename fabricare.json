@@ -1,6 +1,5 @@
 {
 	"solution": {
-		"namespace" : "xyo",
 		"name" : "vendor-python",
 		"type" : "xyo-cpp",
 		"projects": [
